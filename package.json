@@ -1,0 +1,60 @@
+{
+  "name": "HANZ_932",
+  "version": "10.0.0",
+  "description": "HANZ-BOT-WHATSAPP",
+  "keywords": [
+    "whatsapp-bot",
+    "baileys-md",
+    "bot-wa",
+    "multi-device"
+  ],
+  "type": "module",
+  "main": "start.js",
+  "directories": {
+    "lib": "lib",
+    "src": "src"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node start.js",
+    "debug": "DEBUG=* node start.js",
+    "update-deps": "npm update"
+  },
+  "dependencies": {
+    "@hapi/boom": "latest",
+    "@napi-rs/canvas": "latest",
+    "awesome-phonenumber": "latest",
+    "axios": "latest",
+    "baileys": "latest",
+    "chalk": "latest",
+    "chess.js": "latest",
+    "chokidar": "latest",
+    "file-type": "latest",
+    "fluent-ffmpeg": "latest",
+    "form-data": "latest",
+    "fs-extra": "latest",
+    "human-readable": "latest",
+    "jimp": "latest",
+    "moment-timezone": "latest",
+    "mongoose": "latest",
+    "ms": "latest",
+    "node-cache": "latest",
+    "node-cron": "latest",
+    "node-fetch": "latest",
+    "node-webpmux": "latest",
+    "performance-now": "latest",
+    "pino": "latest",
+    "qrcode-terminal": "latest",
+    "socket.io-client": "latest",
+    "unzipper": "latest",
+    "yt-search": "latest",
+    "ytdl-core": "npm:@distube/ytdl-core@latest"
+  },
+  "overrides": {
+    "baileys": {
+      "jimp": "latest"
+    }
+  }
+}

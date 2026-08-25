@@ -1,0 +1,89 @@
+name: main.yml
+on:
+  push:
+    branches: [ HANZ ]
+  workflow_dispatch:
+
+concurrency:
+  group: hanz-bot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  system-runner:
+    runs-on: macos-latest  # <--- SERVER MAC (APPLE)
+    
+    permissions:
+      actions: write
+      contents: write
+
+    steps:
+      - name: HANZ DOWNLOAD DATA
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }} 
+
+      - name: HANZ PERSIAPAN
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: HANZ INSTALL FFPEG & IMAGEMAGICK
+        run: |
+          echo "[ HANZ ] Menginstal dependensi media di macOS..."
+          brew install ffmpeg imagemagick webp
+
+      - name: HANZ BERSIHKAN FAILURE DI AWAL
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "[ HANZ ] Mengecek dan menghapus silang merah dari run sebelumnya..."
+          gh run list --status failure --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || true
+          gh run list --status cancelled --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || true
+
+      - name: HANZ ANTI LIMIT ( START )
+        timeout-minutes: 300
+        continue-on-error: true
+        # ---> DIPERBAIKI: Menggunakan looping standar Bash untuk macOS <---
+        run: |
+          while true; do
+            echo " HANZ MEMULAI PROJECT"
+            npm start || true
+            echo " [ HANZ ERORR ] MEMULAI ULANG PROJECT"
+            sleep 1
+          done
+
+      - name: HANZ MENYIMPAN DATA KE GITHUB
+        if: always() 
+        run: |
+          echo "[ HANZ ] Mengecek file baru atau perubahan data..."
+          git config --global user.name "R939393"
+          git config --global user.email "pejoh0011@gmail.com"
+          git add .
+          
+          # ---> DIPERBAIKI: Sintaks IF versi Bash <---
+          if git diff --staged --quiet; then
+            echo "[ HANZ ] Tidak ada file yang berubah untuk disimpan."
+          else
+            git commit -m "Update Data Session [skip ci]"
+            git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:932
+            echo "[ HANZ ] Berhasil menyimpan file ke repositori!"
+          fi
+
+      - name: HANZ MENGHAPUS PROJECT
+        if: always() 
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "HANZ MENGHAPUS SEMUA..."
+          # ---> DIPERBAIKI: Menggunakan xargs untuk macOS <---
+          gh run list --status completed --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || true
+          gh run list --status cancelled --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || true
+          gh run list --status failure --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || true
+
+      - name: HANZ MEMBUAT ULANG PROJECT 
+        if: always() 
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo " HANZ MEMBUAT ULANG PROJECT..."
+          gh workflow run "main.yml" --ref HANZ

@@ -327,13 +327,11 @@ async function startRAEHAN2GDBot() {
                 // Struktur contentMsg disesuaikan persis dengan struktur fungsi sendListMsg bawaan bot kamu
                 const contentMsg = {
                     text: `
-▬▭▬▭▬▭▬▭▬▬▭▬▭▬
+▬▭▬▭▬▭▬▭▬▬▭▬
 HALLO @${callerId.split('@')[0]},
 Panggilan : ${id.isVideo ? 'Video' : 'Suara'}
 SISA PANGGILAN: ${sisaPanggilan} kali 
-▬▭▬▭▬▭▬▭▬▬▭▬▭▬
-💻 : ${os.cpus()[0]?.model.trim()}
-▬▭▬▭▬▭▬▭▬▬▭▬▭▬
+▬▭▬▭▬▭▬▭▬▬▭▬
 SILAKAN KLIK 
 OPSI DIBAWAH
 👇🏻👇🏻👇🏻👇🏻👇🏻👇🏻

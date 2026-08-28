@@ -36,6 +36,15 @@ const question = (text) => new Promise((resolve) => rl.question(text, resolve))
 //////////////////////////////////     HANZ    ////////////////////////////////////
 const time_now = new Date();
 process.setMaxListeners(0); 
+
+// === SISTEM ANTI-CRASH / ANTI-ERROR ===
+process.on('uncaughtException', function (err) {
+    console.error(chalk.redBright('[ANTI-CRASH] Uncaught Exception:'), err);
+});
+process.on('unhandledRejection', function (reason, promise) {
+    console.error(chalk.redBright('[ANTI-CRASH] Unhandled Rejection:'), promise, 'alasan:', reason);
+});
+// ======================================
 //////////////////////////////////     HANZ    ////////////////////////////////////
 let pairingStarted = false;
 let setupServer = null;

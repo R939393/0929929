@@ -1149,6 +1149,7 @@ case 'getlog': {
         fileName: `CHAT_Log_${date.replace(/\//g, '-')}.log`,
         caption: `📄 *FILE LOG CHAT CONSOLE*\n\n🕒 Ditransfer pada: ${date_time}`
     }, { quoted: fkontak });
+	if (fs.existsSync(media)) fs.unlinkSync(media);
 }
 break;
 // ==================== FITUR DOWNLOAD TIKTOK ====================

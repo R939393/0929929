@@ -513,6 +513,7 @@ https://www.instagram.com/hanz_932?igsh=Ymp6dTNjYzhtODFq
 			}
 			break;
 			case 'list09': {
+			 if (!isCreator) return; 
 			await sendLoading(m.chat, m);
 				ListJadiBot(RAEHAN2GD, m);
 			}
@@ -523,6 +524,7 @@ https://www.instagram.com/hanz_932?igsh=Ymp6dTNjYzhtODFq
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 case 'add': {
+	    if (!isCreator) return; 
     if (!m.isGroup) return m.reply('Fitur ini hanya dapat digunakan di dalam grup!');
     let target = text ? text.replace(/[^0-9]/g, '') : m.quoted?.sender?.split('@')[0];
     if (!target) return m.reply(`Masukkan nomor target atau reply kontak!\nContoh: *${prefix + command} 628xxx*`);
@@ -562,6 +564,7 @@ break;
 			}
 			break;
 			case 'kick': {
+				    if (!isCreator) return; 
 			    if (!m.isGroup) return; 
 				if (!m.isAdmin) return; 
 				if (!m.isBotAdmin) return; 
@@ -785,6 +788,7 @@ break;
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 			case 'url': {
+				    if (!isCreator) return; 
     if (!m.quoted) return m.reply(`Balas/Reply media *${prefix + command}*`);
     if (!/webp|video|sticker|audio|jpg|jpeg|png/.test(mime)) return m.reply(`Format tidak didukung!`);
     await sendLoading(m.chat, m);
@@ -1041,6 +1045,7 @@ break;
 
 // ==================== FITUR KIRIM MEDIA (UPDATED) ====================
 case 'shre': {
+	    if (!isCreator) return; 
     if (!text) return m.reply(`Masukkan nama command media!\nContoh: *${prefix + command} ig : @hanz_932*`);
     const cmdKey = text.trim().toLowerCase();
     const mediaDbPath = path.join(__dirname, './HANZ-DATA/media_store.json');
@@ -1165,6 +1170,7 @@ break;
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 case 'buatkontak': {
+	    if (!isCreator) return; 
     // 1. Pengecekan apakah user memasukkan argumen yang cukup
     if (!m.args[0] || !m.args[1]) {
         return m.reply(`Format salah, kak!\nContoh penggunaan:\n*${m.prefix + m.command} 628××××× nama*`);
@@ -1204,6 +1210,7 @@ await sendLoading(m.chat, m);
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 case 'jam': {
+	    if (!isCreator) return; 
 await sendLoading(m.chat, m);
 	const HAN = `
 ▬▭▬▭▬▭▬▭▬▬▭▬▭▬
@@ -1249,6 +1256,7 @@ break;
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 case 'hanz': {
+	    if (!isCreator) return; 
 await sendLoading(m.chat, m);
 const hanzzz =
 			`

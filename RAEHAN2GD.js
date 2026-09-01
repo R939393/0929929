@@ -1203,7 +1203,22 @@ await sendLoading(m.chat, m);
     }, { quoted: fkontak });
     }
     break;
-    
+
+case 'rhn': {
+    if (!text) return m.reply(`Penggunaan: *${prefix + command}* isi pesan kamu`);
+
+    await RAEHAN2GD.sendMessage(m.chat, {
+        text: text,
+        contextInfo: {
+            isForwarded: true,
+            forwardingScore: 999
+        }
+    }, { quoted: m });
+}
+break;
+
+
+				
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
@@ -1285,6 +1300,11 @@ const hanzzz =
 ┣❏${setv} ${prefix}buatgc namagc
 ┣❏${setv} ${prefix}add  62xxx / @tag
 ┣❏${setv} ${prefix}kick 62xxx / @tag
+┗━━━━━━━━━━━━━⊱
+
+━━━━[  𝘍𝘈𝘒𝘌  ]━━━━
+┏━━━━━━━━━━━━━⊱
+┣❏${setv} ${prefix}rhn
 ┗━━━━━━━━━━━━━⊱
 
 

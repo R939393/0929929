@@ -416,25 +416,31 @@ break;
 			break;
 
 			case 's': {
-				if (!/image|video|sticker/.test(quoted.type) && !/image|video|webp/.test(mime)) {
-					return m.reply(`Kirim/reply gambar/video/gif dengan caption *${prefix + command}*`);
-				}
-				m.react('⏳');
-				let media = await RAEHAN2GD.downloadAndSaveMediaMessage(qmsg);
-    
-    try {
-        // Proses pembuatan stiker
-        let encmedia = await createExif(media, packname, author);
-        await RAEHAN2GD.sendMessage(m.chat, { sticker: { url: encmedia } }, { quoted: m });
-        
-        // Bersihkan hasil konversi stiker jika berupa file sementara
-        if (fs.existsSync(encmedia)) fs.unlinkSync(encmedia);
-    } finally {
-        // Bersihkan media mentah (foto/video asli)
-        if (fs.existsSync(media)) fs.unlinkSync(media);
-    }
-}
-break;
+                                if (!/image|video|sticker/.test(quoted.type) && !/
+image|video|webp/.test(mime)) {
+                                        return m.reply(`Kirim/reply gambar/video/g
+if dengan caption *${prefix + command}*`);
+                                }
+                                m.react('⏳');
+                                let media = await RAEHAN2GD.downloadAndSaveMediaMe
+ssage(qmsg);
+                                let teks1 = text.split`|`[0] ? text.split`|`[0].tr
+im() : packname;
+                                let teks2 = text.split`|`[1] ? text.split`|`[1].tr
+im() : author;
+
+                                try {
+                                        await RAEHAN2GD.sendAsSticker(m.chat, medi
+a, m, { packname: teks1, author: teks2 });
+                                } catch (e) {
+                                        console.error("Gagal membuat stiker:", e);
+
+                                } finally {
+                                        if (fs.existsSync(media)) fs.unlinkSync(me
+dia);
+                                }
+                        }
+                        break;
 			
 			
 			

@@ -1198,12 +1198,20 @@ break;
     await sendLoading(m.chat, m); 
     
     try {
+		let res = await axios.get(`https://www.tikwm.com/api/?url=${text}&hd=1`, {
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+        'Referer': 'https://www.tikwm.com/',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+});
         // PERCOBAAN 1: TikWM via GET dengan User-Agent (Anti-Blokir)
-        let res = await axios.get(`https://www.tikwm.com/api/?url=${text}&hd=1`, {
+       /* let res = await axios.get(`https://www.tikwm.com/api/?url=${text}&hd=1`, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
-        });
+        });*/
 
         if (res.data.code !== 0) throw new Error('TikWM: Video private atau tidak ditemukan');
 

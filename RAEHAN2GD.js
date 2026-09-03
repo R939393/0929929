@@ -1324,15 +1324,14 @@ case 'tt': {
 
     if (!data) return m.reply('❌ Gagal mengambil data dari TikTok. Semua server/scraper sedang sibuk atau link bermasalah.');
 
-    let caption = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                  `*TIKTOK DOWNLOADER*\n` +
-                  `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                  `├◎ *Judul:* ${data.title}\n` +
-                  `├◎ *Author:* ${data.author}\n` +
-                  (data.duration ? `├◎ *Durasi:* ${data.duration} detik\n` : '') +
-                  `├◎ *Server:* ${data.source}\n` +
-                  `╰━━━━━━━━━━━━╯`;
-
+   let caption = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+              `*TIKTOK DOWNLOADER*\n` +
+              `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+              `├◎ *Nama Akun:* ${data.author || 'Tidak diketahui'}\n` +
+              `├◎ *Judul:* ${data.title || '-'}\n` +
+              `├◎ *Durasi:* ${data.duration ? data.duration + ' detik' : 'Tidak diketahui'}\n` +
+              `├◎ *Server:* ${data.source}\n` +
+              `╰━━━━━━━━━━━━╯`;
     // 1. Penanganan Kasus Posting Slide Foto TikTok
     if (data.images && Array.isArray(data.images) && data.images.length > 0) {
         m.reply(`📷 *Postingan Slide Gambar Detected (${data.images.length} Gambar)*`);

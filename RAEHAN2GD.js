@@ -1191,70 +1191,69 @@ break;
 
 
 // ==================== 𝘿𝙊𝙒𝙉𝙇𝙊𝘼𝘿 ===================
- case 'tt': {
+			case 'tt': {
     if (!text) return m.reply(`Kirim link TikTok!\nContoh: *${prefix + command} https://vt.tiktok.com/xxxx*`);
     if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
-    
-    await sendLoading(m.chat, m); 
-    
-    try {
-		let res = await axios.get(`https://www.tikwm.com/api/?url=${text}&hd=1`, {
-    headers: {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
-        'Referer': 'https://www.tikwm.com/',
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'X-Requested-With': 'XMLHttpRequest'
-    }
-});
-        // PERCOBAAN 1: TikWM via GET dengan User-Agent (Anti-Blokir)
-       /* let res = await axios.get(`https://www.tikwm.com/api/?url=${text}&hd=1`, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-        });*/
 
-        if (res.data.code !== 0) throw new Error('TikWM: Video private atau tidak ditemukan');
+    await sendLoading(m.chat, m);
+
+    try {
+        // PERCOBAAN 1: TikWM via POST (Lebih tahan blokir IP Datacenter / GitHub Actions)
+        let res = await axios.post('https://www.tikwm.com/api/', 
+            `url=${encodeURIComponent(text)}&count=12&cursor=0&web=1&hd=1`, 
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+                    'Accept': 'application/json, text/javascript, */*; q=0.01'
+                }
+            }
+        );
+
+        if (res.data.code !== 0 || !res.data.data) throw new Error('TikWM: Video private atau akses IP diblokir');
 
         let videoUrl = res.data.data.hdplay || res.data.data.play; 
         let caption = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
                       `*TIKTOK DOWNLOADER*\n` +
                       `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                      `├◎ *Judul:* ${res.data.data.title}\n` +
-                      `├◎ *Author:* ${res.data.data.author.nickname}\n` +
-                      `├◎ *Durasi:* ${res.data.data.duration} detik\n` +
+                      `├◎ *Judul:* ${res.data.data.title || '-'}\n` +
+                      `├◎ *Author:* ${res.data.data.author?.nickname || '-'}\n` +
+                      `├◎ *Durasi:* ${res.data.data.duration || 0} detik\n` +
                       `╰━━━━━━━━━━━━╯`;
 
         await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl }, caption: caption }, { quoted: m });
 
     } catch (err1) {
-        console.error('TikWM error, mengalihkan ke Server Cadangan 1...', err1.message);
+        console.error('TikWM Error:', err1.message);
         
         try {
-            // PERCOBAAN 2: Fallback ke API Siputzx
-            let fallback1 = await axios.get(`https://api.siputzx.my.id/api/d/tiktok?url=${text}`);
-            let videoUrl2 = fallback1.data.data.mp4; // Mengambil video no WM
-
+            // PERCOBAAN 2: TiklyDown (Lebih ramah terhadap server Cloud/Actions)
+            let fallback1 = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${text}`);
+            if (!fallback1.data?.video?.noWatermark) throw new Error('TiklyDown API Error / Limit');
+            
+            let videoUrl2 = fallback1.data.video.noWatermark;
             await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl2 }, caption: `✅ *Berhasil via Server Cadangan 1!*` }, { quoted: m });
 
         } catch (err2) {
-            console.error('Siputzx error, mengalihkan ke Server Cadangan 2...', err2.message);
+            console.error('TiklyDown Error:', err2.message);
             
             try {
-                // PERCOBAAN 3: Fallback ke API Vreden
-                let fallback2 = await axios.get(`https://api.vreden.web.id/api/tiktok?url=${text}`);
-                let videoUrl3 = fallback2.data.result.download; // Mengambil link unduhan
-
+                // PERCOBAAN 3: Siputzx dengan Optional Chaining agar tidak crash jika JSON berubah
+                let fallback2 = await axios.get(`https://api.siputzx.my.id/api/d/tiktok?url=${text}`);
+                if (!fallback2.data?.data?.mp4) throw new Error('Siputzx API Limit/Block');
+                
+                let videoUrl3 = fallback2.data.data.mp4;
                 await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl3 }, caption: `✅ *Berhasil via Server Cadangan 2!*` }, { quoted: m });
 
             } catch (err3) {
-                // Jika ketiga server mati atau link memang bermasalah
-                m.reply('❌');
+                console.error('Semua API Gagal:', err3.message);
+                // Output log error jelas untuk mempermudah pemantauan di tab Actions
+                m.reply(`❎`);
             }
         }
     }
 }
 break;
-
 
 
 
@@ -1366,6 +1365,7 @@ const hanzzz =
 ┣❏${setv} ${prefix}speed
 ┗━━━━━━━━━━━━━⊱
 
+
 ━━━━[ 𝘚𝘛𝘈𝘓𝘒𝘐𝘕𝘎 ]━━━━
 ┏━━━━━━━━━━━━━⊱
 ┣❏${setv} ${prefix}ghstalk username
@@ -1397,7 +1397,6 @@ const hanzzz =
 ┣❏${setv} ${prefix}toimg (reply pesan)
 ┣❏${setv} ${prefix}toptv (reply pesan)
 ┣❏${setv} ${prefix}tourl (reply pesan)
-┣❏${setv} ${prefix}url (reply media)
 ┣❏${setv} ${prefix}s (send/reply img)
 ┗━━━━━━━━━━━━━⊱
 

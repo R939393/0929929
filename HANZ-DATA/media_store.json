@@ -1,0 +1,44 @@
+{
+  "ujian": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ujian.vnd.android.package-archive",
+    "caption": "",
+    "mimetype": "application/vnd.android.package-archive",
+    "fileName": "base.apk"
+  },
+  "bebb": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_bebb.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "bebb.bin"
+  },
+  "vidbeb1": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_vidbeb1.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "vidbeb1.bin"
+  },
+  "vidbeb2": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_vidbeb2.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "vidbeb2.bin"
+  },
+  "vidbeb3": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_vidbeb3.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "vidbeb3.bin"
+  },
+  "vidbeb4": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_vidbeb4.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "vidbeb4.bin"
+  }
+}

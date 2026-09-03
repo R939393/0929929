@@ -1191,69 +1191,57 @@ break;
 
 
 // ==================== 𝘿𝙊𝙒𝙉𝙇𝙊𝘼𝘿 ===================
-			case 'tt': {
-    if (!text) return m.reply(`Kirim link TikTok!\nContoh: *${prefix + command} https://vt.tiktok.com/xxxx*`);
-    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
+			
 
-    await sendLoading(m.chat, m);
+case 'tt': {
+    if (!text) return m.reply('Kirim link TikTok-nya, ngab.');
+
+    m.reply('Bentar, lagi diproses...');
 
     try {
-        // PERCOBAAN 1: TikWM via POST (Lebih tahan blokir IP Datacenter / GitHub Actions)
-        let res = await axios.post('https://www.tikwm.com/api/', 
-            `url=${encodeURIComponent(text)}&count=12&cursor=0&web=1&hd=1`, 
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
-                    'Accept': 'application/json, text/javascript, */*; q=0.01'
-                }
+        // 1. Tembak halaman depan untuk ambil token & endpoint HTMX dinamis
+        const { data } = await axios.get('https://ssstik.io/en', {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+        });
+
+        const $ = cheerio.load(data);
+        const postEndpoint = $('form').attr('hx-post') || $('form').attr('data-hx-post') || '/abc?url=dl';
+        const ttToken = $('input[name="tt"]').val() || '';
+
+        // 2. Siapkan payload form
+        const formData = new URLSearchParams();
+        formData.append('id', text);
+        formData.append('locale', 'en');
+        formData.append('tt', ttToken);
+
+        // 3. Request POST ke endpoint ssstik.io
+        const { data: dlData } = await axios.post(`https://ssstik.io${postEndpoint}`, formData.toString(), {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Origin': 'https://ssstik.io',
+                'Referer': 'https://ssstik.io/en',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
             }
-        );
+        });
 
-        if (res.data.code !== 0 || !res.data.data) throw new Error('TikWM: Video private atau akses IP diblokir');
+        const $$ = cheerio.load(dlData);
+        const videoLink = $$('a.pure-button').first().attr('href');
+        const desc = $$('p.maintext').text().trim() || 'Berhasil di-download';
 
-        let videoUrl = res.data.data.hdplay || res.data.data.play; 
-        let caption = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                      `*TIKTOK DOWNLOADER*\n` +
-                      `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                      `├◎ *Judul:* ${res.data.data.title || '-'}\n` +
-                      `├◎ *Author:* ${res.data.data.author?.nickname || '-'}\n` +
-                      `├◎ *Durasi:* ${res.data.data.duration || 0} detik\n` +
-                      `╰━━━━━━━━━━━━╯`;
+        if (!videoLink) return m.reply('❌ Gagal ambil link video. Kemungkinan video di-private atau kena limit.');
 
-        await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl }, caption: caption }, { quoted: m });
+        // 4. Kirim hasil video ke WhatsApp menggunakan RAEHAN2GD
+        await RAEHAN2GD.sendMessage(m.chat, { 
+            video: { url: videoLink }, 
+            caption: desc 
+        }, { quoted: m });
 
-    } catch (err1) {
-        console.error('TikWM Error:', err1.message);
-        
-        try {
-            // PERCOBAAN 2: TiklyDown (Lebih ramah terhadap server Cloud/Actions)
-            let fallback1 = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${text}`);
-            if (!fallback1.data?.video?.noWatermark) throw new Error('TiklyDown API Error / Limit');
-            
-            let videoUrl2 = fallback1.data.video.noWatermark;
-            await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl2 }, caption: `✅ *Berhasil via Server Cadangan 1!*` }, { quoted: m });
+    } catch (e) {
+        console.error('SSSTik Error:', e.message);
+        m.reply(`❌ Terjadi error: ${e.message}`);
+    }}
 
-        } catch (err2) {
-            console.error('TiklyDown Error:', err2.message);
-            
-            try {
-                // PERCOBAAN 3: Siputzx dengan Optional Chaining agar tidak crash jika JSON berubah
-                let fallback2 = await axios.get(`https://api.siputzx.my.id/api/d/tiktok?url=${text}`);
-                if (!fallback2.data?.data?.mp4) throw new Error('Siputzx API Limit/Block');
-                
-                let videoUrl3 = fallback2.data.data.mp4;
-                await RAEHAN2GD.sendMessage(m.chat, { video: { url: videoUrl3 }, caption: `✅ *Berhasil via Server Cadangan 2!*` }, { quoted: m });
-
-            } catch (err3) {
-                console.error('Semua API Gagal:', err3.message);
-                // Output log error jelas untuk mempermudah pemantauan di tab Actions
-                m.reply(`❎`);
-            }
-        }
-    }
-}
-break;
+    break;
 
 
 

@@ -1192,56 +1192,185 @@ break;
 
 // ==================== 𝘿𝙊𝙒𝙉𝙇𝙊𝘼𝘿 ===================
 			
-
 case 'tt': {
-    if (!text) return m.reply('Kirim link TikTok-nya, ngab.');
+    if (!text) return m.reply(`Kirim link TikTok!\nContoh: *${prefix + command} https://vt.tiktok.com/xxxx*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
+    
+    await sendLoading(m.chat, m);
 
-    m.reply('Bentar, lagi diproses...');
+    let data = null;
 
+    // ==================== SERVER 1: TikWM ====================
     try {
-        // 1. Tembak halaman depan untuk ambil token & endpoint HTMX dinamis
-        const { data } = await axios.get('https://ssstik.io/en', {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-        });
-
-        const $ = cheerio.load(data);
-        const postEndpoint = $('form').attr('hx-post') || $('form').attr('data-hx-post') || '/abc?url=dl';
-        const ttToken = $('input[name="tt"]').val() || '';
-
-        // 2. Siapkan payload form
-        const formData = new URLSearchParams();
-        formData.append('id', text);
-        formData.append('locale', 'en');
-        formData.append('tt', ttToken);
-
-        // 3. Request POST ke endpoint ssstik.io
-        const { data: dlData } = await axios.post(`https://ssstik.io${postEndpoint}`, formData.toString(), {
+        let res = await axios.get(`https://www.tikwm.com/api/?url=${encodeURIComponent(text)}&hd=1`, {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Origin': 'https://ssstik.io',
-                'Referer': 'https://ssstik.io/en',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-            }
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'application/json'
+            },
+            timeout: 10000
         });
-
-        const $$ = cheerio.load(dlData);
-        const videoLink = $$('a.pure-button').first().attr('href');
-        const desc = $$('p.maintext').text().trim() || 'Berhasil di-download';
-
-        if (!videoLink) return m.reply('❌ Gagal ambil link video. Kemungkinan video di-private atau kena limit.');
-
-        // 4. Kirim hasil video ke WhatsApp menggunakan RAEHAN2GD
-        await RAEHAN2GD.sendMessage(m.chat, { 
-            video: { url: videoLink }, 
-            caption: desc 
-        }, { quoted: m });
-
+        if (res.data && res.data.code === 0 && res.data.data) {
+            let d = res.data.data;
+            data = {
+                videoUrl: d.hdplay || d.play,
+                title: d.title || 'TikTok Video',
+                author: d.author?.nickname || d.author?.unique_id || '-',
+                duration: d.duration || 0,
+                images: d.images || null,
+                source: 'TikWM'
+            };
+        }
     } catch (e) {
-        console.error('SSSTik Error:', e.message);
-        m.reply(`❌ Terjadi error: ${e.message}`);
-    }}
+        console.error('TikWM Error:', e.message);
+    }
 
-    break;
+    // ==================== SERVER 2: SSSTikTok Scraper ====================
+    if (!data) {
+        try {
+            let res = await axios.post('https://ssstik.io/abc?url=dl',
+                new URLSearchParams({ id: text, locale: 'en', tt: 0 }).toString(),
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                        'Referer': 'https://ssstik.io/en',
+                        'Origin': 'https://ssstik.io'
+                    },
+                    timeout: 12000
+                }
+            );
+            let html = res.data;
+            let vMatch = html.match(/href="(https:\/\/[^"]+)"[^>]*class="[^"]*without_watermark[^"]*"/i) 
+                      || html.match(/href="(https:\/\/[^"]+)"[^>]*download/i)
+                      || html.match(/<a[^>]+href="(https:\/\/tikcdn\.io\/[^"]+)"/i)
+                      || html.match(/href="(https:\/\/[^"]+\.mp4[^"]*)"/i);
+            let tMatch = html.match(/<p class="maintext">([^<]+)<\/p>/i) || html.match(/<h2>([^<]+)<\/h2>/i);
+
+            if (vMatch && vMatch[1]) {
+                data = {
+                    videoUrl: vMatch[1],
+                    title: tMatch ? tMatch[1].trim() : 'TikTok Video',
+                    author: 'SSSTik User',
+                    duration: 0,
+                    images: null,
+                    source: 'SSSTikTok Scraper'
+                };
+            }
+        } catch (e) {
+            console.error('SSSTikTok Error:', e.message);
+        }
+    }
+
+    // ==================== SERVER 3: Tiklydown API ====================
+    if (!data) {
+        try {
+            let res = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(text)}`, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                timeout: 10000
+            });
+            if (res.data && res.data.video) {
+                data = {
+                    videoUrl: res.data.video.noWatermark || res.data.video.watermark,
+                    title: res.data.title || 'TikTok Video',
+                    author: res.data.author?.name || '-',
+                    duration: 0,
+                    images: res.data.images || null,
+                    source: 'Tiklydown API'
+                };
+            }
+        } catch (e) {
+            console.error('Tiklydown Error:', e.message);
+        }
+    }
+
+    // ==================== SERVER 4: Siputzx API ====================
+    if (!data) {
+        try {
+            let res = await axios.get(`https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(text)}`, { timeout: 10000 });
+            if (res.data && res.data.status && res.data.data) {
+                data = {
+                    videoUrl: res.data.data.mp4 || res.data.data.hd,
+                    title: res.data.data.title || 'TikTok Video',
+                    author: res.data.data.author || '-',
+                    duration: 0,
+                    images: null,
+                    source: 'Siputzx API'
+                };
+            }
+        } catch (e) {
+            console.error('Siputzx Error:', e.message);
+        }
+    }
+
+    // ==================== SERVER 5: Vreden API ====================
+    if (!data) {
+        try {
+            let res = await axios.get(`https://api.vreden.web.id/api/tiktok?url=${encodeURIComponent(text)}`, { timeout: 10000 });
+            if (res.data && res.data.result) {
+                let d = res.data.result;
+                data = {
+                    videoUrl: d.download || d.video || d.nowm,
+                    title: d.title || 'TikTok Video',
+                    author: d.author || '-',
+                    duration: 0,
+                    images: d.images || null,
+                    source: 'Vreden API'
+                };
+            }
+        } catch (e) {
+            console.error('Vreden Error:', e.message);
+        }
+    }
+
+    if (!data) return m.reply('❌ Gagal mengambil data dari TikTok. Semua server/scraper sedang sibuk atau link bermasalah.');
+
+    let caption = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+                  `*TIKTOK DOWNLOADER*\n` +
+                  `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+                  `├◎ *Judul:* ${data.title}\n` +
+                  `├◎ *Author:* ${data.author}\n` +
+                  (data.duration ? `├◎ *Durasi:* ${data.duration} detik\n` : '') +
+                  `├◎ *Server:* ${data.source}\n` +
+                  `╰━━━━━━━━━━━━╯`;
+
+    // 1. Penanganan Kasus Posting Slide Foto TikTok
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+        m.reply(`📷 *Postingan Slide Gambar Detected (${data.images.length} Gambar)*`);
+        for (let imgUrl of data.images) {
+            let imgObj = typeof imgUrl === 'string' ? imgUrl : imgUrl.url;
+            if (imgObj) {
+                await RAEHAN2GD.sendMessage(m.chat, { image: { url: imgObj } }, { quoted: m });
+                await sleep(500);
+            }
+        }
+        return;
+    }
+
+    // 2. Penanganan Video (Pengunduhan Buffer untuk GitHub Actions)
+    if (data.videoUrl) {
+        let mediaPayload;
+        try {
+            // Mengunduh Buffer secara langsung untuk menghindari blokir 403 Forbidden di IP GitHub Actions
+            let vRes = await axios.get(data.videoUrl, {
+                responseType: 'arraybuffer',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Referer': 'https://www.tiktok.com/'
+                },
+                timeout: 25000
+            });
+            mediaPayload = Buffer.from(vRes.data);
+        } catch (errBuf) {
+            console.error('Buffer fetch gagal, mencoba URL langsung:', errBuf.message);
+            mediaPayload = { url: data.videoUrl };
+        }
+
+        await RAEHAN2GD.sendMessage(m.chat, { video: mediaPayload, caption: caption }, { quoted: m });
+    } else {
+        m.reply('❌ Link media video tidak ditemukan!');
+    }
+}
+break;
 
 
 

@@ -268,7 +268,8 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
-case 'url': {
+               
+ case 'url': {
     if (!/image|video|audio|sticker|document/.test(mime) && !/image|video|webp/.test(quoted.type)) {
         return m.reply(`Kirim atau reply media (Foto, Video, Audio, Stiker, Dokumen) dengan caption *${prefix + command}*`);
     }
@@ -282,61 +283,69 @@ case 'url': {
         let directLink = null;
         let provider = '';
 
-        // --- SERVER 1: Top4top.io ---
+        // --- SERVER 1: Catbox.moe (Permanen, Max 200MB) ---
         try {
-            let form = new FormData();
-            form.append('file_0_', fs.createReadStream(media));
-            form.append('submit_0', 'رفع الملفات');
+            let formCat = new FormData();
+            formCat.append('reqtype', 'fileupload');
+            formCat.append('fileToUpload', fs.createReadStream(media));
 
-            let res = await axios.post('https://top4top.io/index.php', form, {
-                headers: {
-                    ...form.getHeaders(),
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                    'Referer': 'https://top4top.io/'
-                },
-                timeout: 20000
+            let resCat = await axios.post('https://catbox.moe/user/api.php', formCat, {
+                headers: formCat.getHeaders(),
+                timeout: 25000
             });
 
-            let html = res.data;
-            let matches = html.match(/https?:\/\/[a-zA-Z0-9]+\.top4top\.io\/[a-zA-Z0-9_]+\.[a-zA-Z0-9]+/gi);
-            if (matches && matches.length > 0) {
-                directLink = matches.find(u => /\/(p|m|f|d|i|a)_/.test(u)) || matches[0];
-                provider = 'Top4top.io';
+            if (resCat.data && typeof resCat.data === 'string' && resCat.data.startsWith('http')) {
+                directLink = resCat.data.trim();
+                provider = 'Catbox.moe (Permanen)';
             }
         } catch (e) {
-            console.error('Top4top Error:', e.message);
+            console.error('Catbox Error:', e.message);
         }
 
-        // --- SERVER 2: Uguu.se (Fallback 1) ---
+        // --- SERVER 2: Top4top.io (Permanen) ---
         if (!directLink) {
             try {
-                let resUguu = await UguuSe(media);
-                if (resUguu && resUguu.url) {
-                    directLink = resUguu.url;
-                    provider = 'Uguu.se';
+                let form = new FormData();
+                form.append('file_0_', fs.createReadStream(media));
+                form.append('submit_0', 'رفع الملفات');
+
+                let res = await axios.post('https://top4top.io/index.php', form, {
+                    headers: {
+                        ...form.getHeaders(),
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Referer': 'https://top4top.io/'
+                    },
+                    timeout: 25000
+                });
+
+                let html = res.data;
+                let matches = html.match(/https?:\/\/[a-zA-Z0-9]+\.top4top\.io\/[a-zA-Z0-9_]+\.[a-zA-Z0-9]+/gi);
+                if (matches && matches.length > 0) {
+                    directLink = matches.find(u => /\/(p|m|f|d|i|a)_/.test(u)) || matches[0];
+                    provider = 'Top4top.io (Permanen)';
                 }
             } catch (e) {
-                console.error('Uguu Error:', e.message);
+                console.error('Top4top Error:', e.message);
             }
         }
 
-        // --- SERVER 3: Catbox.moe (Fallback 2) ---
+        // --- SERVER 3: Pixeldrain.com (Permanen) ---
         if (!directLink) {
             try {
-                let formCat = new FormData();
-                formCat.append('reqtype', 'fileupload');
-                formCat.append('fileToUpload', fs.createReadStream(media));
+                let formPixel = new FormData();
+                formPixel.append('file', fs.createReadStream(media));
 
-                let resCat = await axios.post('https://catbox.moe/user/api.php', formCat, {
-                    headers: formCat.getHeaders(),
-                    timeout: 20000
+                let resPixel = await axios.post('https://pixeldrain.com/api/file', formPixel, {
+                    headers: formPixel.getHeaders(),
+                    timeout: 25000
                 });
-                if (resCat.data && resCat.data.startsWith('http')) {
-                    directLink = resCat.data.trim();
-                    provider = 'Catbox.moe';
+
+                if (resPixel.data && resPixel.data.id) {
+                    directLink = `https://pixeldrain.com/api/file/${resPixel.data.id}`;
+                    provider = 'Pixeldrain (Permanen)';
                 }
             } catch (e) {
-                console.error('Catbox Error:', e.message);
+                console.error('Pixeldrain Error:', e.message);
             }
         }
 
@@ -345,7 +354,7 @@ case 'url': {
             let fileSize = formatp(stats.size);
 
             let teks = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
-                       `*MEDIA TO URL UPLOADER*\n` +
+                       `*PERMANENT UPLOADER*\n` +
                        `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
                        `├◎ *Provider:* ${provider}\n` +
                        `├◎ *Tipe:* ${mime || 'Media'}\n` +
@@ -357,7 +366,7 @@ case 'url': {
             await RAEHAN2GD.sendMessage(m.chat, { text: teks }, { quoted: m });
         } else {
             m.react('❎');
-            m.reply('❌ Gagal mengunggah media. Semua server uploader sedang bermasalah.');
+            m.reply('❌ Gagal mengunggah media ke semua server permanen.');
         }
     } catch (err) {
         console.error('Error Uploader:', err);
@@ -368,96 +377,6 @@ case 'url': {
     }
 }
 break;
-// ==================== ADD, LIST, & DEL CMD ===================
-
-case 'addcmd': {
-    if (!isCreator) return m.reply('Khusus Owner!');
-    if (!text) return m.reply(`Gunakan format yang benar!\n\nContoh:\n*${prefix + command} case 'namacase': {\n  m.reply('Halo');\n}\nbreak;*`);
-
-    // Mencari nama case dari input text
-    const match = text.match(/case\s+['"]([^'"]+)['"]/);
-    if (!match) return m.reply('Format salah! Pastikan kamu menggunakan format *case \'namacase\':*');
-    
-    const cmdName = match[1].toLowerCase();
-    const fileContent = fs.readFileSync(__filename, 'utf-8');
-
-    // Mencegah duplikasi dengan mengecek apakah case sudah ada di dalam script
-    if (fileContent.includes(`case '\({cmdName}':`) || fileContent.includes(`case "\){cmdName}":`)) {
-        return m.reply(`❌ Gagal! Command *${cmdName}* sudah ada di dalam script (duplikat).`);
-    }
-
-    // Membungkus kode dengan penanda khusus agar bisa dibedakan oleh delcmd
-    const codeToInject = `\n// --- BEGIN ADDED CMD: \({cmdName} ---\n\){text}\n// --- END ADDED CMD: ${cmdName} ---\n\n\t\t\tdefault:`;
-    
-    // Menyisipkan kode baru tepat di atas 'default:' menggunakan replacer function agar aman dari karakter regex
-    const newContent = fileContent.replace(/\s*default:/, () => codeToInject);
-    
-    try {
-        fs.writeFileSync(__filename, newContent, 'utf-8');
-        m.reply(`✅ Berhasil menambahkan fitur *${cmdName}* ke dalam script!\n\n_Script sedang dimuat ulang (restart)..._`);
-        
-        // Delay sebentar lalu mematikan proses agar auto-restart (jika menggunakan pm2/nodemon)
-        setTimeout(() => { process.exit() }, 2000);
-    } catch (err) {
-        console.error(err);
-        m.reply(`❌ Gagal menyimpan file: ${err.message}`);
-    }
-}
-break;
-
-case 'delcmd': {
-    if (!isCreator) return m.reply('Khusus Owner!');
-    if (!text) return m.reply(`Masukkan nama command yang ingin dihapus!\nContoh: *${prefix + command} spm*`);
-
-    const cmdName = text.trim().toLowerCase();
-    let fileContent = fs.readFileSync(__filename, 'utf-8');
-
-    // Deteksi blok kode khusus yang dibuat oleh addcmd
-    const regexAdded = new RegExp(`\\/\\/ --- BEGIN ADDED CMD: \({cmdName} ---[\\s\\S]*?\\/\\/ --- END ADDED CMD:\){cmdName} ---`, 'g');
-    
-    if (regexAdded.test(fileContent)) {
-        // Hapus kode beserta penandanya
-        fileContent = fileContent.replace(regexAdded, '');
-        
-        try {
-            fs.writeFileSync(__filename, fileContent, 'utf-8');
-            m.reply(`✅ Berhasil menghapus fitur *${cmdName}* dari script!\n\n_Script sedang dimuat ulang (restart)..._`);
-            setTimeout(() => { process.exit() }, 2000);
-        } catch (err) {
-            console.error(err);
-            m.reply(`❌ Gagal menghapus file: ${err.message}`);
-        }
-    } else {
-        // Jika tidak ada di blok ADDED CMD, cek apakah ada di script murni bawaan
-        if (fileContent.includes(`case '\({cmdName}':`) || fileContent.includes(`case "\){cmdName}":`)) {
-            return m.reply(`⚠️ Akses Ditolak!\nFitur *${cmdName}* adalah command bawaan script murni dan tidak dapat dihapus melalui fitur ini.`);
-        } else {
-            return m.reply(`❌ Command *${cmdName}* tidak ditemukan di dalam script.`);
-        }
-    }
-}
-break;
-
-case 'listcmd': {
-    if (!isCreator) return m.reply('Khusus Owner!');
-    const fileContent = fs.readFileSync(__filename, 'utf-8');
-    
-    // Mencari semua command yang ditambahkan secara dinamis
-    const matches = [...fileContent.matchAll(/\/\/ --- BEGIN ADDED CMD: (.*?) ---/g)];
-    
-    if (matches.length === 0) return m.reply('📁 Belum ada fitur tambahan (addcmd) yang disisipkan ke dalam script.');
-
-    let teks = `🛠️ *DAFTAR FITUR TAMBAHAN (ADDCMD)*\n\n`;
-    matches.forEach((match, index) => {
-        teks += `*\({index + 1}.*\){prefix}${match[1]}\n`;
-    });
-    teks += `\n*Total:* ${matches.length} command buatan`;
-    
-    m.reply(teks);
-}
-break;
-
-
 
 // ==================== 𝘾𝙊𝙉𝙑𝙀𝙍𝙏𝙀𝙍 ===================
 case 'setvn': {

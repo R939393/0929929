@@ -268,7 +268,106 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
+case 'url': {
+    if (!/image|video|audio|sticker|document/.test(mime) && !/image|video|webp/.test(quoted.type)) {
+        return m.reply(`Kirim atau reply media (Foto, Video, Audio, Stiker, Dokumen) dengan caption *${prefix + command}*`);
+    }
 
+    await sendLoading(m.chat, m);
+    m.react('⏳');
+
+    let media = await RAEHAN2GD.downloadAndSaveMediaMessage(qmsg);
+
+    try {
+        let directLink = null;
+        let provider = '';
+
+        // --- SERVER 1: Top4top.io ---
+        try {
+            let form = new FormData();
+            form.append('file_0_', fs.createReadStream(media));
+            form.append('submit_0', 'رفع الملفات');
+
+            let res = await axios.post('https://top4top.io/index.php', form, {
+                headers: {
+                    ...form.getHeaders(),
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Referer': 'https://top4top.io/'
+                },
+                timeout: 20000
+            });
+
+            let html = res.data;
+            let matches = html.match(/https?:\/\/[a-zA-Z0-9]+\.top4top\.io\/[a-zA-Z0-9_]+\.[a-zA-Z0-9]+/gi);
+            if (matches && matches.length > 0) {
+                directLink = matches.find(u => /\/(p|m|f|d|i|a)_/.test(u)) || matches[0];
+                provider = 'Top4top.io';
+            }
+        } catch (e) {
+            console.error('Top4top Error:', e.message);
+        }
+
+        // --- SERVER 2: Uguu.se (Fallback 1) ---
+        if (!directLink) {
+            try {
+                let resUguu = await UguuSe(media);
+                if (resUguu && resUguu.url) {
+                    directLink = resUguu.url;
+                    provider = 'Uguu.se';
+                }
+            } catch (e) {
+                console.error('Uguu Error:', e.message);
+            }
+        }
+
+        // --- SERVER 3: Catbox.moe (Fallback 2) ---
+        if (!directLink) {
+            try {
+                let formCat = new FormData();
+                formCat.append('reqtype', 'fileupload');
+                formCat.append('fileToUpload', fs.createReadStream(media));
+
+                let resCat = await axios.post('https://catbox.moe/user/api.php', formCat, {
+                    headers: formCat.getHeaders(),
+                    timeout: 20000
+                });
+                if (resCat.data && resCat.data.startsWith('http')) {
+                    directLink = resCat.data.trim();
+                    provider = 'Catbox.moe';
+                }
+            } catch (e) {
+                console.error('Catbox Error:', e.message);
+            }
+        }
+
+        if (directLink) {
+            let stats = fs.statSync(media);
+            let fileSize = formatp(stats.size);
+
+            let teks = `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+                       `*MEDIA TO URL UPLOADER*\n` +
+                       `▬▭▬▭▬▭▬▭▬▬▭▬▭\n` +
+                       `├◎ *Provider:* ${provider}\n` +
+                       `├◎ *Tipe:* ${mime || 'Media'}\n` +
+                       `├◎ *Ukuran:* ${fileSize}\n` +
+                       `├◎ *URL:* ${directLink}\n` +
+                       `╰━━━━━━━━━━━━╯`;
+
+            m.react('✅');
+            await RAEHAN2GD.sendMessage(m.chat, { text: teks }, { quoted: m });
+        } else {
+            m.react('❎');
+            m.reply('❌ Gagal mengunggah media. Semua server uploader sedang bermasalah.');
+        }
+    } catch (err) {
+        console.error('Error Uploader:', err);
+        m.react('❎');
+        m.reply('Terjadi kesalahan sistem saat memproses media.');
+    } finally {
+        if (fs.existsSync(media)) fs.unlinkSync(media);
+    }
+}
+break;
 // ==================== ADD, LIST, & DEL CMD ===================
 
 case 'addcmd': {

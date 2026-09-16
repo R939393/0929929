@@ -383,6 +383,12 @@ PANGGILAN 3 KALI
 UNTUK MENCEGAH 
 SPAM PANGGILAN
 ▬▭▬▭▬▭▬▭▬▬▭▬▭▬
+
+MEDIA SOSIAL 👇👇👇
+https://ig-hanz-932.github.io/BOLEH_KENALAN____SCRIPT-HANZ
+
+▬▭▬▭▬▭▬▭▬▬▭▬▭▬
+
                         `,
         
         

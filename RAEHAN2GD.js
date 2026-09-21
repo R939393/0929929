@@ -270,7 +270,88 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
 
+// ==================== UNIVERSAL WEB GRABBER (FIXED) ===================
+case 'comot': {
+    if (!text) return m.reply(`Kirim link web yang ingin diambil videonya!\nContoh: *${prefix + command} https://avtub.wiki/video/...*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
 
+    await sendLoading(m.chat, m);
+    m.react('⏳');
+
+    let videoUrl = null;
+
+    try {
+        // 1. Menggunakan Scraper Cerdas untuk Menembus Halaman Web
+        let { data: html } = await axios.get(text, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Referer': text
+            },
+            timeout: 15000
+        });
+
+        // Mencari berbagai pola link video di dalam HTML website
+        let match = html.match(/https?:\/\/[^"'\s]+\.mp4(\?[^"'\s]*)?/i) ||
+                    html.match(/<meta property="og:video" content="([^"]+)"/i) ||
+                    html.match(/<meta property="og:video:url" content="([^"]+)"/i) ||
+                    html.match(/src=["'](https?:\/[^"'\s]+\.mp4[^"']*)['"]/i) ||
+                    html.match(/source[^>]+src=["'](https?:\/\/[^"'\s]+)["']/i);
+
+        if (match) {
+            videoUrl = match[1] || match[0];
+        }
+
+        // 2. Fallback: Jika tidak ketemu di HTML utama, cek apakah menggunakan iframe/embed player umum
+        if (!videoUrl) {
+            let iframeMatch = html.match(/iframe[^>]+src=["'](https?:\/\/[^"'\s]+)["']/i);
+            if (iframeMatch) {
+                let iframeRes = await axios.get(iframeMatch[1], {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                });
+                let innerMatch = iframeRes.data.match(/https?:\/\/[^"'\s]+\.mp4(\?[^"'\s]*)?/i);
+                if (innerMatch) videoUrl = innerMatch[0];
+            }
+        }
+
+        if (!videoUrl) {
+            return m.reply('❌ Maaf, video tidak dapat ditemukan atau dilindungi enkripsi server (Blob/HLS). Website ini tidak mengizinkan unduhan langsung.');
+        }
+
+        // Bersihkan entitas HTML
+        videoUrl = videoUrl.replace(/&amp;/g, '&');
+
+        // 3. DOWNLOAD SEBAGAI BUFFER (Agar file utuh dan dapat diputar di WhatsApp)
+        console.log(`[DLWEB] Mendownload video dari: ${videoUrl}`);
+        let vRes = await axios.get(videoUrl, {
+            responseType: 'arraybuffer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Referer': text
+            },
+            timeout: 30000
+        });
+
+        let videoBuffer = Buffer.from(vRes.data);
+
+        // Validasi ukuran minimal file agar tidak mengirim file kosong/corrupt
+        if (videoBuffer.length < 10000) {
+            return m.reply('❌ Gagal: File video yang diunduh terlalu kecil atau rusak.');
+        }
+
+        // 4. KIRIM KE WHATSAPP SEBAGAI VIDEO UTUH
+        await RAEHAN2GD.sendMessage(m.chat, { 
+            video: videoBuffer, 
+            caption: `🎬 *BERHASIL MENGAMBIL VIDEO*\n🔗 *Source:* ${text}` 
+        }, { quoted: m });
+        
+        m.react('✅');
+
+    } catch (e) {
+        console.error('Error Grabber:', e.message);
+        m.reply('❌ Gagal mengambil video. Situs web tersebut memblokir akses otomatis atau link memerlukan sesi *login* / *token* khusus.');
+    }
+}
+break;
 
 // ==================== UNIVERSAL WEB GRABBER ===================
 case 'grab':

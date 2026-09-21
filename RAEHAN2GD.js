@@ -269,6 +269,90 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
+
+
+
+// ==================== UNIVERSAL WEB GRABBER ===================
+case 'grab':
+case 'dlweb': {
+    if (!text) return m.reply(`Kirim link web yang ingin diambil medianya!\nContoh: *${prefix + command} https://situsapapun.com/video-123*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
+
+    await sendLoading(m.chat, m);
+
+    try {
+        // Fetch halaman web dari URL yang diberikan
+        let res = await axios.get(text, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+            },
+            timeout: 15000 // Batas waktu 15 detik
+        });
+
+        let html = res.data;
+        let mediaUrl = null;
+        let mediaType = '';
+
+        // 1. CARI URL VIDEO (Prioritas Utama)
+        // Mengecek tag meta og:video, tag <video src="...">, tag <source src="...">, atau link berakhiran .mp4
+        let videoMatch = html.match(/<meta property="og:video" content="([^"]+)"/i) ||
+                         html.match(/<meta property="og:video:url" content="([^"]+)"/i) ||
+                         html.match(/<video[^>]*src="([^"]+)"/i) ||
+                         html.match(/<source[^>]*src="([^"]+)"/i) ||
+                         html.match(/['"](https?:\/\/[^'"]+\.mp4[^'"]*)['"]/i);
+
+        // 2. JIKA VIDEO TIDAK ADA, CARI URL GAMBAR (Prioritas Kedua)
+        let imageMatch = html.match(/<meta property="og:image" content="([^"]+)"/i) ||
+                         html.match(/<img[^>]*src="([^"]+)"/i);
+
+        // Tentukan tipe dan URL media
+        if (videoMatch && videoMatch[1]) {
+            mediaUrl = videoMatch[1];
+            mediaType = 'video';
+        } else if (imageMatch && imageMatch[1]) {
+            mediaUrl = imageMatch[1];
+            mediaType = 'image';
+        }
+
+        if (!mediaUrl) {
+            return m.reply('❌ Tidak dapat mendeteksi video atau gambar utama pada link web tersebut. (Mungkin dilindungi script/Blob)');
+        }
+
+        // 3. FIX URL RELATIVE (Ubah /folder/vid.mp4 menjadi https://situs.com/folder/vid.mp4)
+        if (!mediaUrl.startsWith('http')) {
+            const baseURL = new URL(text);
+            mediaUrl = new URL(mediaUrl, baseURL.origin).href;
+        }
+
+        // Bersihkan URL dari entitas HTML (misal &amp; jadi &)
+        mediaUrl = mediaUrl.replace(/&amp;/g, '&');
+
+        // Notifikasi proses pengiriman
+        m.reply(`⏳ *Mendownload ${mediaType} dari web...*\nMohon tunggu sebentar.`);
+
+        // 4. KIRIM MEDIA KE WHATSAPP
+        if (mediaType === 'video') {
+            await RAEHAN2GD.sendMessage(m.chat, { 
+                video: { url: mediaUrl }, 
+                caption: `🎬 *BERHASIL MENGAMBIL VIDEO*\n🔗 *Source:* ${text}` 
+            }, { quoted: m });
+        } else {
+            await RAEHAN2GD.sendMessage(m.chat, { 
+                image: { url: mediaUrl }, 
+                caption: `📷 *BERHASIL MENGAMBIL GAMBAR*\n🔗 *Source:* ${text}` 
+            }, { quoted: m });
+        }
+
+    } catch (e) {
+        console.error('Error DL Web:', e.message);
+        m.reply('❌ Gagal mengakses web. Pastikan link aktif, tidak error 404, dan tidak diblokir oleh anti-bot/Cloudflare.');
+    }
+}
+break;
+
+
+				
 // ==================== WEB DOWNLOADER (FOTO/VIDEO) ===================
 case 'webdl':
 case 'ambil': {

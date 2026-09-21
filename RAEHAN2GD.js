@@ -269,6 +269,61 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
+
+
+
+// ==================== UNIVERSAL VIDEO DOWNLOADER (ANTI-BLOKIR) ===================
+case 'dlvid':
+case 'vid': {
+    if (!text) return m.reply(`Kirim link web videonya!\nContoh: *${prefix + command} https://thisvid.com/xxx*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
+
+    await sendLoading(m.chat, m);
+    m.react('⏳');
+
+    // Menentukan nama file sementara di folder Temp sistem operasi
+    const tmpDir = os.tmpdir();
+    const fileName = `video_${Date.now()}.mp4`;
+    const outputPath = path.join(tmpDir, fileName);
+
+    // Command yt-dlp: 
+    // -f "best[ext=mp4]/best" -> Ambil format mp4 terbaik
+    // --max-filesize 50M -> Batasi maksimal 50MB agar WhatsApp tidak menolak pengiriman
+    // --no-playlist -> Jangan download playlist, cukup 1 video saja
+    const command = `yt-dlp -f "best[ext=mp4]/best" --max-filesize 50M --no-playlist -o "${outputPath}" "${text}"`;
+
+    // Eksekusi terminal server secara langsung
+    exec(command, async (err, stdout, stderr) => {
+        if (err) {
+            console.error('[YT-DLP ERROR]:', stderr);
+            return m.reply('❌ Gagal mendownload video.\nSitus ini mungkin menerapkan Cloudflare tingkat tinggi, atau ukuran video melebihi batas 50MB WhatsApp.');
+        }
+
+        // Cek apakah file videonya berhasil terdownload dan tercipta di sistem
+        if (fs.existsSync(outputPath)) {
+            try {
+                m.reply('⏳ *Video berhasil diekstrak! Sedang mengirim ke WhatsApp...*');
+                
+                await RAEHAN2GD.sendMessage(m.chat, {
+                    video: { url: outputPath },
+                    caption: `🎬 *BERHASIL MENGAMBIL VIDEO*\n🔗 *Source:* ${text}`
+                }, { quoted: m });
+                
+                m.react('✅');
+            } catch (sendErr) {
+                console.error(sendErr);
+                m.reply('❌ Gagal mengirim video ke WhatsApp. (Mungkin file masih terlalu besar).');
+            } finally {
+                // SANGAT PENTING: Hapus file video dari memori server agar GitHub/VPS tidak kepenuhan
+                if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+            }
+        } else {
+            m.reply('❌ Video tidak ditemukan di link tersebut (Situs mungkin meminta konfirmasi 18+ yang memblokir bot).');
+        }
+    });
+}
+break;
+				
 // ==================== UNIVERSAL WEB GRABBER (ADVANCED SCRAPER) ===================
 case 'tel': {
     if (!text) return m.reply(`Kirim link web yang ingin diambil videonya!\nContoh: *${prefix + command} https://avtub.wiki/video/...*`);

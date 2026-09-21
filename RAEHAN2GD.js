@@ -270,7 +270,72 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
 
+// ==================== SEND MEDIA DARI URL ===================
+case 'geturl': {
+    // Mengecek apakah user memasukkan link
+    if (!text) return m.reply(`Kirim link foto atau video yang ingin dijadikan media!\nContoh: *${prefix + command} https://ar-hosting.pages.dev/1784824855027.jpg*`);
+    
+    // Mengecek apakah text yang dikirim benar-benar sebuah URL
+    if (!isUrl(text)) return m.reply('❌ Link yang kamu berikan tidak valid!');
 
+    await sendLoading(m.chat, m);
+    m.react('⏳');
+
+    try {
+        // Melakukan request HEAD untuk mengecek tipe file (gambar/video) tanpa mendownload full dulu
+        const response = await axios.head(text);
+        const contentType = response.headers['content-type'] || response.headers['Content-Type'];
+
+        if (contentType && contentType.includes('image')) {
+            // Jika link berisi gambar
+            await RAEHAN2GD.sendMessage(m.chat, {
+                image: { url: text },
+                caption: `✅ Sukses mengambil gambar dari link.`
+            }, { quoted: m });
+            m.react('✅');
+        } 
+        else if (contentType && contentType.includes('video')) {
+            // Jika link berisi video
+            await RAEHAN2GD.sendMessage(m.chat, {
+                video: { url: text },
+                caption: `✅ Sukses mengambil video dari link.`
+            }, { quoted: m });
+            m.react('✅');
+        } 
+        else {
+            // Jika terdeteksi bukan gambar/video dari Content-Type
+            throw new Error('Bukan media'); 
+        }
+
+    } catch (error) {
+        // FALLBACK: Jika server web memblokir request HEAD, bot akan menebak dari akhiran teks URL (ekstensi file)
+        console.log('Cek HEAD gagal, mencoba fallback ekstensi...');
+        
+        if (text.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
+            try {
+                await RAEHAN2GD.sendMessage(m.chat, { image: { url: text }, caption: '✅ Sukses mengambil gambar.' }, { quoted: m });
+                m.react('✅');
+            } catch (err) {
+                m.reply('❌ Gagal mendownload gambar. Pastikan link bisa diakses publik.');
+                m.react('❎');
+            }
+        } 
+        else if (text.match(/\.(mp4|avi|mov|mkv)$/i)) {
+            try {
+                await RAEHAN2GD.sendMessage(m.chat, { video: { url: text }, caption: '✅ Sukses mengambil video.' }, { quoted: m });
+                m.react('✅');
+            } catch (err) {
+                m.reply('❌ Gagal mendownload video. Pastikan link bisa diakses publik.');
+                m.react('❎');
+            }
+        } 
+        else {
+            m.reply('❌ Gagal mengambil media. Pastikan link tersebut adalah Direct Link (langsung mengarah ke file gambar/video).');
+            m.react('❎');
+        }
+    }
+}
+break;
 
 
 // ==================== 𝘾𝙊𝙉𝙑𝙀𝙍𝙏𝙀𝙍 ===================

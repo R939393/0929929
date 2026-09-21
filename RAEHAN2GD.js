@@ -270,6 +270,54 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
 
+
+// ==================== GET MEDIA / WEB TO IMAGE ===================
+
+case 'get1': 
+case 'web2img': {
+    if (!text) return m.reply(`Kirim link web atau media!\nContoh: *${prefix + command} https://m.vidio.com/pages/4*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid! Pastikan link diawali dengan http:// atau https://');
+
+    // Memanggil efek loading yang sudah ada di script Anda
+    await sendLoading(m.chat, m);
+
+    let url = text.trim();
+    let ext = url.split('.').pop().toLowerCase();
+
+    try {
+        // 1. JIKA LINK ADALAH VIDEO LANGSUNG
+        if (ext === 'mp4' || ext === 'mkv' || ext === 'webm') {
+            await RAEHAN2GD.sendMessage(m.chat, { 
+                video: { url: url }, 
+                caption: `🎥 *Direct Video*\n🔗 Link: ${url}` 
+            }, { quoted: m });
+        }
+        // 2. JIKA LINK ADALAH GAMBAR LANGSUNG
+        else if (ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'gif' || ext === 'webp') {
+            await RAEHAN2GD.sendMessage(m.chat, { 
+                image: { url: url }, 
+                caption: `🖼️ *Direct Image*\n🔗 Link: ${url}` 
+            }, { quoted: m });
+        }
+        // 3. JIKA LINK ADALAH WEBSITE BIASA (Ubah web jadi foto)
+        else {
+            // Menggunakan API thum.io untuk mengubah website menjadi foto
+            // Anda juga bisa mengganti URL di bawah dengan API screenshot web lainnya jika diperlukan
+            let webToPhotoUrl = `https://image.thum.io/get/width/1200/crop/800/noanimate/${url}`;
+            
+            let captionText = `🌐 *WEB TO PHOTO*\n\nBerhasil mengambil cuplikan gambar dari web:\n🔗 ${url}`;
+            
+            await RAEHAN2GD.sendMessage(m.chat, { 
+                image: { url: webToPhotoUrl }, 
+                caption: captionText 
+            }, { quoted: m });
+        }
+    } catch (e) {
+        console.error(e);
+        m.reply('❌ Gagal memproses link. Pastikan link tersebut bisa diakses secara publik dan tidak dikunci oleh sistem login web tersebut.');
+    }
+}
+break;				
 // ==================== SEND MEDIA DARI URL ===================
 case 'geturl': {
     // Mengecek apakah user memasukkan link

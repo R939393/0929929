@@ -290,7 +290,7 @@ case 'vid': {
     // -f "best[ext=mp4]/best" -> Ambil format mp4 terbaik
     // --max-filesize 50M -> Batasi maksimal 50MB agar WhatsApp tidak menolak pengiriman
     // --no-playlist -> Jangan download playlist, cukup 1 video saja
-    const command = `yt-dlp -f "best[ext=mp4]/best" --max-filesize 50M --no-playlist -o "${outputPath}" "${text}"`;
+    const command = `yt-dlp -f "best[ext=mp4]/best" --no-playlist -o "${outputPath}" "${text}"`;
 
     // Eksekusi terminal server secara langsung
     exec(command, async (err, stdout, stderr) => {

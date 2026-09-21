@@ -1,7 +1,7 @@
 name: main.yml
 on:
   push:
-    branches: [ HANZ ]
+    branches: [ 932 ]
   workflow_dispatch: # Tombol manual
 
 # ---> FITUR BARU: MENCEGAH DUPLIKAT <---
@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '20'
 
-       - name: HANZ INSTALL FFPEG, IMAGEMAGICK & YT-DLP
+      - name: HANZ INSTALL FFPEG & IMAGEMAGICK
         run: |
           echo "[ HANZ ] Memperbarui paket dan menginstal dependensi media..."
           sudo apt-get update
@@ -81,7 +81,7 @@ jobs:
             git commit -m "Update Data Session [skip ci]"
             
             # Mendorong kembali ke branch 932 menggunakan token
-            git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:HANZ
+            git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:932
             echo "[ HANZ ] Berhasil menyimpan file ke repositori!"
           fi
 
@@ -108,4 +108,4 @@ jobs:
         run: |
           echo " HANZ MEMBUAT ULANG PROJECT..."
           # Pastikan nama di bawah ini SAMA PERSIS dengan 'name:' paling atas
-          gh workflow run "main.yml" --ref HANZ
+          gh workflow run "main.yml" --ref 932

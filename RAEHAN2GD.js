@@ -269,7 +269,118 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
+// ==================== UNIVERSAL WEB GRABBER (ADVANCED SCRAPER) ===================
+case 'tel': {
+    if (!text) return m.reply(`Kirim link web yang ingin diambil videonya!\nContoh: *${prefix + command} https://avtub.wiki/video/...*`);
+    if (!isUrl(text)) return m.reply('❌ Link tidak valid!');
 
+    await sendLoading(m.chat, m);
+    m.react('⏳');
+
+    let videoUrl = null;
+
+    try {
+        // Mengambil halaman HTML dengan header browser yang lengkap
+        let { data: html } = await axios.get(text, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Referer': text
+            },
+            timeout: 15000
+        });
+
+        // 1. Cari link .mp4 atau og:video secara langsung di HTML
+        let match = html.match(/https?:\/\/[^"'\s]+\.mp4(\?[^"'\s]*)?/i) ||
+                    html.match(/<meta property="og:video" content="([^"]+)"/i) ||
+                    html.match(/<meta property="og:video:url" content="([^"]+)"/i) ||
+                    html.match(/src=["'](https?:\/[^"'\s]+\.mp4[^"']*)['"]/i);
+
+        if (match) {
+            videoUrl = match[1] || match[0];
+        }
+
+        // 2. Jika tidak ketemu, cari di dalam konfigurasi Script / JSON Player (JWPlayer / VideoJS / WordPress Video)
+        if (!videoUrl) {
+            let scriptMatch = html.match(/file\s*:\s*["'](https?:\/\/[^"']+\.mp4[^"']*)["']/i) ||
+                              html.match(/"file"\s*:\s*["'](https?:\/\/[^"']+\.mp4[^"']*)["']/i) ||
+                              html.match(/sources\s*:\s*\[\s*\{\s*file\s*:\s*["'](https?:\/\/[^"']+)["']/i) ||
+                              html.match(/src\s*:\s*["'](https?:\/\/[^"']+\.mp4[^"']*)["']/i);
+            if (scriptMatch) {
+                videoUrl = scriptMatch[1];
+            }
+        }
+
+        // 3. Jika masih tidak ketemu, telusuri tag Iframe (Embed Player)
+        if (!videoUrl) {
+            let iframeMatch = html.match(/<iframe[^>]+src=["'](https?:\/\/[^"'\s]+)["']/i);
+            if (iframeMatch) {
+                let iframeUrl = iframeMatch[1];
+                if (!iframeUrl.startsWith('http')) {
+                    const baseURL = new URL(text);
+                    iframeUrl = new URL(iframeUrl, baseURL.origin).href;
+                }
+                
+                let iframeRes = await axios.get(iframeUrl, {
+                    headers: { 
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Referer': text
+                    },
+                    timeout: 10000
+                });
+                
+                let innerMatch = iframeRes.data.match(/https?:\/\/[^"'\s]+\.mp4(\?[^"'\s]*)?/i) ||
+                                 iframeRes.data.match(/file\s*:\s*["'](https?:\/\/[^"']+\.mp4[^"']*)["']/i) ||
+                                 iframeRes.data.match(/"file"\s*:\s*["'](https?:\/\/[^"']+\.mp4[^"']*)["']/i);
+                if (innerMatch) {
+                    videoUrl = innerMatch[1] || innerMatch[0];
+                }
+            }
+        }
+
+        if (!videoUrl) {
+            return m.reply('❌ Gagal: Video di halaman ini dimuat menggunakan skrip JavaScript dinamis tingkat lanjut atau dilindungi oleh server player khusus yang memerlukan browser asli.');
+        }
+
+        // Membersihkan format URL
+        videoUrl = videoUrl.replace(/&amp;/g, '&');
+        if (!videoUrl.startsWith('http')) {
+            const baseURL = new URL(text);
+            videoUrl = new URL(videoUrl, baseURL.origin).href;
+        }
+
+        console.log(`[DLWEB] Mendownload video dari: ${videoUrl}`);
+        
+        // Mengunduh file video ke server bot secara utuh
+        let vRes = await axios.get(videoUrl, {
+            responseType: 'arraybuffer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Referer': text
+            },
+            timeout: 30000
+        });
+
+        let videoBuffer = Buffer.from(vRes.data);
+        if (videoBuffer.length < 10000) {
+            return m.reply('❌ Gagal: File yang diunduh bukan video atau ukurannya terlalu kecil.');
+        }
+
+        // Mengirimkan hasil video matang yang dapat diputar ke WhatsApp
+        await RAEHAN2GD.sendMessage(m.chat, { 
+            video: videoBuffer, 
+            caption: `🎬 *BERHASIL MENGAMBIL VIDEO*\n🔗 *Source:* ${text}` 
+        }, { quoted: m });
+        
+        m.react('✅');
+
+    } catch (e) {
+        console.error('Error Grabber:', e.message);
+        m.reply('❌ Terjadi kesalahan saat mengakses atau mengunduh dari situs tersebut.');
+    }
+}
+break;
 // ==================== UNIVERSAL WEB GRABBER (FIXED) ===================
 case 'comot': {
     if (!text) return m.reply(`Kirim link web yang ingin diambil videonya!\nContoh: *${prefix + command} https://avtub.wiki/video/...*`);

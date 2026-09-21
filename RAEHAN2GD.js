@@ -269,7 +269,91 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
+// ==================== WEB DOWNLOADER (FOTO/VIDEO) ===================
+case 'webdl':
+case 'ambil': {
+    if (!text) return m.reply(`Kirim link web, foto, atau video!\nContoh: *${prefix + command} https://example.com/video.mp4*`);
+    if (!isUrl(text)) return m.reply('❌ Link yang kamu masukkan tidak valid!');
 
+    await sendLoading(m.chat, m);
+
+    try {
+        // 1. Cek tipe file dari link yang diberikan
+        let res = await axios.get(text, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            },
+            responseType: 'arraybuffer' // Download sebagai buffer untuk dicek
+        });
+
+        let contentType = res.headers['content-type'];
+
+        // 2. Jika link langsung mengarah ke Gambar / Foto
+        if (contentType.includes('image')) {
+            return await RAEHAN2GD.sendMessage(m.chat, { 
+                image: Buffer.from(res.data), 
+                caption: '✅ Berhasil mengambil foto dari link.' 
+            }, { quoted: m });
+        } 
+        
+        // 3. Jika link langsung mengarah ke Video
+        else if (contentType.includes('video')) {
+            return await RAEHAN2GD.sendMessage(m.chat, { 
+                video: Buffer.from(res.data), 
+                caption: '✅ Berhasil mengambil video dari link.' 
+            }, { quoted: m });
+        } 
+        
+        // 4. Jika link mengarah ke Website (HTML), kita lakukan Scraping untuk mencari medianya
+        else if (contentType.includes('text/html')) {
+            let html = Buffer.from(res.data).toString('utf-8');
+            let mediaUrl = '';
+            let mediaType = '';
+
+            // Cari URL Video di dalam HTML (og:video atau tag video mp4)
+            let videoMatch = html.match(/<meta[^>]*property="og:video"[^>]*content="([^"]+)"/) || 
+                             html.match(/<video[^>]*src="([^"]+\.mp4[^"]*)"/i) ||
+                             html.match(/source[^>]*src="([^"]+\.mp4[^"]*)"/i);
+                             
+            // Cari URL Gambar di dalam HTML (og:image) jika video tidak ada
+            let imageMatch = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/);
+
+            if (videoMatch && videoMatch[1]) {
+                mediaUrl = videoMatch[1];
+                mediaType = 'video';
+            } else if (imageMatch && imageMatch[1]) {
+                mediaUrl = imageMatch[1];
+                mediaType = 'image';
+            }
+
+            // Jika media ditemukan dari hasil scraping
+            if (mediaUrl) {
+                // Perbaiki URL jika bentuknya relatif (contoh: /assets/vid.mp4)
+                if (mediaUrl.startsWith('/')) {
+                    let urlObj = new URL(text);
+                    mediaUrl = `${urlObj.origin}${mediaUrl}`;
+                }
+
+                m.reply(`🔍 Media ditemukan di dalam web! Sedang mengirim...`);
+                
+                if (mediaType === 'video') {
+                    await RAEHAN2GD.sendMessage(m.chat, { video: { url: mediaUrl }, caption: '✅ Video berhasil diekstrak dari web.' }, { quoted: m });
+                } else {
+                    await RAEHAN2GD.sendMessage(m.chat, { image: { url: mediaUrl }, caption: '✅ Foto berhasil diekstrak dari web.' }, { quoted: m });
+                }
+            } else {
+                return m.reply('❌ Bot sudah mengecek website tersebut, tapi tidak menemukan file Video/Foto yang bisa didownload. (Mungkin video diproteksi atau menggunakan sistem streaming m3u8/blob).');
+            }
+        } else {
+            return m.reply(`❌ Format file tidak didukung: ${contentType}`);
+        }
+
+    } catch (e) {
+        console.error('Error WebDL:', e);
+        m.reply('❌ Terjadi kesalahan! Pastikan link dapat diakses secara publik dan bukan link yang membutuhkan login.');
+    }
+}
+break;
 
 // ==================== GET MEDIA / WEB TO IMAGE ===================
 

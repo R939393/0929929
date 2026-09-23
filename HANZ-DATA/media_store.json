@@ -40,5 +40,68 @@
     "caption": "",
     "mimetype": "video/mp4",
     "fileName": "vidbeb4.bin"
+  },
+  "haaan": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_haaan.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "haaan.bin"
+  },
+  "kewan": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_kewan.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "kewan.bin"
+  },
+  "kewan1": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_kewan1.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "kewan1.bin"
+  },
+  "kewan2": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_kewan2.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "kewan2.bin"
+  },
+  "ler": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ler.vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "caption": "",
+    "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "fileName": "Tugas Kokurikuler Laporan Peran dan tugas dalam keluarga.docx"
+  },
+  "mandul": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_mandul.vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "caption": "",
+    "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "fileName": "Mengupas Rahasia Pewarisan Sifat.docx"
+  },
+  "sus": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_sus.pdf",
+    "caption": "",
+    "mimetype": "application/pdf",
+    "fileName": "Bing kelas XII.pdf"
+  },
+  "rah": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_rah.pdf",
+    "caption": "",
+    "mimetype": "application/pdf",
+    "fileName": "Demokrasi Liberal - Idsejarah.net.pptx.pdf"
+  },
+  "rah2": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_rah2.pdf",
+    "caption": "",
+    "mimetype": "application/pdf",
+    "fileName": "Kondisi Ekonomi pada Masa Demokrasi Liberal.pdf"
   }
 }

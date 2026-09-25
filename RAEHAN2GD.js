@@ -1527,7 +1527,7 @@ break;
 			case 'bagidonasi': {
 			await sendLoading(m.chat, m);
 			const QR = ` SCAN BARCODE NYA YA `
-			await RAEHAN2GD.sendMessage(m.chat, { image: { url: 'https://ar-hosting.pages.dev/1782820273985.jpg'}, caption: QR, mentions: [m.sender]}, { quoted: fkontak })}
+			await RAEHAN2GD.sendMessage(m.chat, { image: { url: 'https://i.ibb.co/mF44gLcN/1pfejsn7i0.jpg'}, caption: QR, mentions: [m.sender]}, { quoted: fkontak })}
 			break
 			
 			case 'kenalanajayoooks': {
@@ -1683,7 +1683,7 @@ break
 						rows: [
 						{ title: "COPY FITUR PAIRING CODE", id: `${prefix}jadibot`, description: "MEMINTA PAIRING CODE UNTUK PERANGKAT TERTAUT DAN COPY FITUR WHATSAPP" },
 							{ title: "Instagram", id: `${prefix}sosialmedsos1`},
-							{ title: "Donasi", id: `${prefix}bagidonasi`},
+							{ title: "BELI SCRIPT", id: `${prefix}bagidonasi`},
 									{ title: "KENALAN DONG", id: `${prefix}kenalanajayoooks`}, 
 									{ title: "MENGAHIRI SESI", id: `${prefix}stopjadibot`, description: "KELUAR DARI SESI COPY ALL FITUR SILAHKAN GUNAKAN LAGI JIKA BUTUH" }
 					

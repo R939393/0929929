@@ -103,5 +103,12 @@
     "caption": "",
     "mimetype": "application/pdf",
     "fileName": "Kondisi Ekonomi pada Masa Demokrasi Liberal.pdf"
+  },
+  "plok": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_plok.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "plok.bin"
   }
 }

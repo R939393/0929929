@@ -110,5 +110,33 @@
     "caption": "",
     "mimetype": "video/mp4",
     "fileName": "plok.bin"
+  },
+  "melet": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_melet.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "melet.bin"
+  },
+  "ulek": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ulek.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "ulek.bin"
+  },
+  "plok2": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_plok2.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "plok2.bin"
+  },
+  "helikopter": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_helikopter.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "helikopter.bin"
   }
 }

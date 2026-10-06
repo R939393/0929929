@@ -270,65 +270,6 @@ let { key } = await RAEHAN2GD.sendMessage(chatId, { text: 'LOADING SCRIPT RAEHAN
 //////////////////////////////////     HANZ    ////////////////////////////////////
 
 
-// ==================== CUSTOM LINK PERMANEN GRATIS ===================
-case 'customlink':
-case 'setlink': {
-    if (!text) return m.reply(`Gunakan format:\n*${prefix + command} <nama_custom> | <link_tujuan>*\n\nContoh:\n*${prefix + command} tokokoe | https://wa.me/628123456789*`);
-    
-    let argsText = text.split('|');
-    if (argsText.length < 2) return m.reply('Format salah! Gunakan pemisah garis vertikal (| antara nama custom dan link tujuan).');
-    
-    let customName = argsText[0].trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
-    let targetUrl = argsText[1].trim();
-
-    if (!customName) return m.reply('Nama custom link hanya boleh berisi huruf, angka, strip (-), atau underscore (_) tanpa spasi!');
-    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = 'https://' + targetUrl;
-    }
-
-    // Inisialisasi database lokal untuk custom link jika belum ada
-    if (!global.db.customLinks) global.db.customLinks = {};
-
-    // Cek apakah nama custom sudah digunakan orang lain
-    if (global.db.customLinks[customName]) {
-        return m.reply(`❌ Maaf, custom link *${customName}* sudah digunakan oleh pengguna lain. Silakan pilih nama lain!`);
-    }
-
-    // Simpan ke database lokal bot secara permanen
-    global.db.customLinks[customName] = {
-        url: targetUrl,
-        creator: m.sender,
-        date: new Date().toLocaleString()
-    };
-
-    let botDomainInfo = `🌐 *BERHASIL MEMBUAT CUSTOM LINK!*
-
-🔗 *Custom Link:* \`${prefix}s/${customName}\`
-🎯 *Tujuan:* ${targetUrl}
-👤 *Pembuat:* @${m.sender.split('@')[0]}
-⏳ *Masa Aktif:* Permanen (Gratis Tanpa Biaya)
-
-_Simpan dan bagikan link bot Anda!_`;
-
-    await m.reply(botDomainInfo, { mentions: [m.sender] });
-}
-break;
-
-case 'ceklink': {
-    if (!global.db.customLinks || Object.keys(global.db.customLinks).length === 0) {
-        return m.reply('Belum ada custom link yang dibuat di bot ini.');
-    }
-
-    let listTxt = '🌐 *DAFTAR CUSTOM LINK PERMANEN* 🌐\n\n';
-    let no = 1;
-    for (let key in global.db.customLinks) {
-        let data = global.db.customLinks[key];
-        listTxt += `${no++.}. *${key}* ➔ ${data.url}\n`;
-    }
-    m.reply(listTxt);
-}
-break;
-
 
 // ==================== 𝘾𝙊𝙉𝙑𝙀𝙍𝙏𝙀𝙍 ===================
 case 'setvn': {

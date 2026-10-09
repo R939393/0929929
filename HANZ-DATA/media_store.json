@@ -138,5 +138,12 @@
     "caption": "",
     "mimetype": "video/mp4",
     "fileName": "helikopter.bin"
+  },
+  "remes": {
+    "type": "video",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_remes.mp4",
+    "caption": "",
+    "mimetype": "video/mp4",
+    "fileName": "remes.bin"
   }
 }

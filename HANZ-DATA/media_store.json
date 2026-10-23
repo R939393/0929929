@@ -145,5 +145,47 @@
     "caption": "",
     "mimetype": "video/mp4",
     "fileName": "remes.bin"
+  },
+  "ekonomi 1": {
+    "type": "document",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ekonomi 1.pdf",
+    "caption": "",
+    "mimetype": "application/pdf",
+    "fileName": "Ekonomi 3.3 Siklus Akuntansi Perusahaan Jasa - Siswa .pdf"
+  },
+  "ekonomi 2": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ekonomi 2.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "ekonomi 2.bin"
+  },
+  "ekonomi 3": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ekonomi 3.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "ekonomi 3.bin"
+  },
+  "ekonomi 4": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ekonomi 4.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "ekonomi 4.bin"
+  },
+  "ekonomi 5": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_ekonomi 5.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "ekonomi 5.bin"
+  },
+  "tikus 1": {
+    "type": "image",
+    "path": "/home/runner/work/0929929/0929929/HANZ-DATA/media_tikus 1.jpeg",
+    "caption": "",
+    "mimetype": "image/jpeg",
+    "fileName": "tikus 1.bin"
   }
 }

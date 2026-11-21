@@ -424,7 +424,7 @@ async function startRAEHAN2GDBot() {
                 const hariDanJam = `${hariStr}, ${jamStr} WITA`;
                 const jumlahPanggilanText = `${currentCount}x`;
 
-                const backgroundUrl = 'https://d.top4top.io/p_39102ye3q0.jpeg';
+                const backgroundUrl = 'https://i.ibb.co/tT7Nyfq3/1po8e6eu10.jpg';
                 const fallbackPpUrl = 'https://i.ibb.co/4wycCqZW/ybsvq1a8c.jpg';
 
                 let ppUser = fallbackPpUrl;

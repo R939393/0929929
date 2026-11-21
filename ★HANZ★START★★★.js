@@ -528,7 +528,7 @@ RESET : ${resetTime / 60000} MENIT
                         audio: { url: 'https://mp3tourl.com/audio/1787220981120-05555e7b-36f5-4709-9eab-c58cb2d06ee5.opus' },
                         mimetype: 'audio/ogg; codecs=opus',
                         ptt: true,
-                        seconds: setvn 360000000,
+                        seconds: 360000000,
                         waveform: randomWaveform
                     });
                 } catch (err) {

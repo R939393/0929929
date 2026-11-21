@@ -206,8 +206,7 @@ async function GroupParticipantsUpdate(RAEHAN2GD, update, store) {
                     });
                     continue;
                 }
-
-         bg.resize({ w: 1024, h: 576 });
+bg.resize({ w: 1024, h: 576 });
 
                 let pp = await safeLoadJimp(ppUrl);
                 if (!pp) {
@@ -215,50 +214,51 @@ async function GroupParticipantsUpdate(RAEHAN2GD, update, store) {
                 }
 
                 if (pp) {
-                    pp.resize({ w: 120, h: 120 });
-                    bg.composite(pp, 132, 252);
+                    // Pas memenuhi bagian dalam bingkai [   ] (x: 112..279, y: 248..386)
+                    pp.resize({ w: 167, h: 138 });
+                    bg.composite(pp, 112, 248);
                 }
 
                 if (font) {
-                    // Nomor member di kotak putih bawah
+                    // Kotak bawah foto profil (x: 99..292, y: 420..484) -> Nomor member
                     const noMemberClean = memberNumberText.slice(0, 10);
-                    const offsetNo = noMemberClean.length === 1 ? 184 : noMemberClean.length === 2 ? 175 : 166;
+                    const offsetNo = noMemberClean.length === 1 ? 186 : noMemberClean.length === 2 ? 177 : 168;
                     bg.print({
                         font,
                         x: offsetNo,
-                        y: 462,
+                        y: 436,
                         text: noMemberClean
                     });
 
-                    // Kolom 1: Nama grup
+                    // Kolom 1 (y: 213..281) -> Nama grup
                     bg.print({
                         font,
-                        x: 412,
-                        y: 215,
+                        x: 415,
+                        y: 231,
                         text: groupName.slice(0, 32)
                     });
 
-                    // Kolom 2: Hari dan jam
+                    // Kolom 2 (y: 287..354) -> Hari dan jam
                     bg.print({
                         font,
-                        x: 412,
-                        y: 270,
+                        x: 415,
+                        y: 304,
                         text: hariDanJam.slice(0, 35)
                     });
 
-                    // Kolom 3: Tanggal
+                    // Kolom 3 (y: 360..428) -> Tanggal
                     bg.print({
                         font,
-                        x: 412,
-                        y: 325,
+                        x: 415,
+                        y: 378,
                         text: tanggalStr.slice(0, 35)
                     });
 
-                    // Kolom 4: Nomor HP member
+                    // Kolom 4 (y: 434..501) -> Nomor HP member
                     bg.print({
                         font,
-                        x: 412,
-                        y: 382,
+                        x: 415,
+                        y: 451,
                         text: phoneDisplayText.slice(0, 22)
                     });
                 }
@@ -278,7 +278,7 @@ async function GroupParticipantsUpdate(RAEHAN2GD, update, store) {
         console.error('[ERROR] GroupParticipantsUpdate:', e);
     }
 }
-
+         
 
 async function LoadDataBase(RAEHAN2GD, m) {
 	try {
